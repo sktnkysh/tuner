@@ -42,7 +42,7 @@ def df_fromdir_brain(dir_name):
     return df
 
 
-def format_brain(src_dir, dst_dir):
+def _format_brain(src_dir, dst_dir):
 
     df = df_fromdir_brain(src_dir)
     labels = list(set(df['label']))
@@ -54,6 +54,32 @@ def format_brain(src_dir, dst_dir):
     for k, col in df.iterrows():
         read_fname = os.path.join(src_dir, col['fname'])
         write_fname = os.path.join(dst_dir, col['label'], col['fname'])
+        shutil.copy(read_fname, write_fname)
+
+
+def format_brain(src_dir, dst_dir, val_size=0.1):
+    train_dir = os.path.join(dst_dir, 'train')
+    val_dir = os.path.join(dst_dir, 'validation')
+
+    df = df_fromdir_brain(src_dir)
+    labels = list(set(df['label']))
+
+    utils.mkdir(dst_dir)
+    utils.mkdir(train_dir)
+    utils.mkdir(val_dir)
+    for label in labels:
+        utils.mkdir(os.path.join(train_dir, label))
+        utils.mkdir(os.path.join(val_dir, label))
+
+    df_train, df_val = train_val_split_df(df, val_size=val_size)
+    for k, col in df_train.iterrows():
+        read_fname = os.path.join(src_dir, col['fname'])
+        write_fname = os.path.join(train_dir, col['label'], col['fname'])
+        shutil.copy(read_fname, write_fname)
+
+    for k, col in df_val.iterrows():
+        read_fname = os.path.join(src_dir, col['fname'])
+        write_fname = os.path.join(val_dir, col['label'], col['fname'])
         shutil.copy(read_fname, write_fname)
 
 
@@ -89,6 +115,12 @@ def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1):
     x_data = np.array(x_data)
     y_data = np.array(y_data)
 
+    return x_data, y_data
+
+
+def load_fromdir(dataset_dir, label2id=None, resize=RESIZE, rescale=1):
+    df = df_fromdir(dataset_dir)
+    x_data, y_data = load_fromdf(df, label2id=label2id, resize=resize, rescale=rescale)
     return x_data, y_data
 
 
