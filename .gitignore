@@ -40,6 +40,7 @@ jspm_packages
 
 *.png
 *.jpg
+*.JPEG
 *.zip
 *ipynb_checkpoints/
 */__pycache__/
@@ -53,3 +54,4 @@ flask-doctor/upload.py
 flask-doctor/uploads/hoshininegaiwo.png
 
 tf*
+
