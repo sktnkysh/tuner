@@ -41,7 +41,6 @@ def aug(x_train, y_train, x_test, y_test):
         p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     p.status()
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     g = p.keras_generator_from_array(x_train, y_train, batch_size=batch_size)
     g = ((x / 255., y) for (x, y) in g)
 
@@ -75,6 +74,48 @@ def aug(x_train, y_train, x_test, y_test):
         epochs=epochs,
         verbose=2,
     )
+    score, acc = model.evaluate(x_test, y_test, verbose=0)
+    print('Test accuracy:', acc)
+    return {'loss': -acc, 'status': STATUS_OK, 'model': model}
+
+
+def simplenet(x_train, y_train, x_test, y_test):
+    n_out = y_train.shape[-1]
+    input_shape = (96, 96, 3)
+    batch_size = 32
+    epochs = 100
+    steps_per_epoch = len(x_train) // batch_size
+    lossfun = 'categorical_crossentropy'
+    optimizer = 'Adam'
+    metrics = ['accuracy']
+
+    inputs = Input(shape=input_shape)
+    x = inputs
+    ch = {{choice([16, 32])}}
+    x = Conv2D(ch, (3, 3))(x)
+    x = Conv2D(ch, (3, 3))(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    ch = {{choice([32, 64])}}
+    x = Conv2D(ch, (3, 3))(x)
+    x = Conv2D(ch, (3, 3))(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Dropout(0.25)(x)
+    x = Flatten()(x)
+    x = Dense(512)(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.5)(x)
+    x = Dense(n_out)(x)
+    x = Activation('softmax')(x)
+    model = Model(inputs=inputs, outputs=x)
+    model.compile(loss=lossfun, optimizer=optimizer, metrics=metrics)
+    model.fit(
+        x_train, y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        verbose=2,
+        validation_data=(x_test, y_test))
     score, acc = model.evaluate(x_test, y_test, verbose=0)
     print('Test accuracy:', acc)
     return {'loss': -acc, 'status': STATUS_OK, 'model': model}
