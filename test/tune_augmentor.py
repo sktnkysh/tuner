@@ -1,8 +1,6 @@
-
 # coding: utf-8
 
 # In[13]:
-
 
 from __future__ import print_function
 import numpy as np
@@ -30,7 +28,6 @@ import json
 from tuner import utils
 import net
 
-
 # In[9]:
 
 
@@ -53,18 +50,18 @@ def data():
 
 # In[10]:
 
-
 best_run, best_model = optim.minimize(
-    model=net.aug, data=data, algo=tpe.suggest, max_evals=10, trials=Trials(),
+    model=net.aug,
+    data=data,
+    algo=tpe.suggest,
+    max_evals=10,
+    trials=Trials(),
     notebook_name='tune_augmentor')
-
 
 # In[11]:
 
-
 with open('cond.json', 'w') as f:
     json.dump(best_run, f)
-
 
 # In[12]:
 
@@ -80,7 +77,7 @@ def gen_p():
     if conds['conditional_1']:
         p.random_erasing(probability=0.5, rectangle_area=0.2)
     if conds['conditional_2']:
-        p.shear(probability=0.3, max_shear_left=2, max_shear_right=2) 
+        p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
     return p
 
 
@@ -88,7 +85,7 @@ def gen_p():
 
 
 def tune(x_train, y_train, x_test, y_test):
-    
+
     def gen_p():
         with open('cond.json', 'r') as f:
             conds = json.load(f)
@@ -100,16 +97,17 @@ def tune(x_train, y_train, x_test, y_test):
         if conds['conditional_1']:
             p.random_erasing(probability=0.5, rectangle_area=0.2)
         if conds['conditional_2']:
-            p.shear(probability=0.3, max_shear_left=2, max_shear_right=2) 
+            p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
         return p
-    n_out = y_train.shape[-1] 
+
+    n_out = y_train.shape[-1]
     input_shape = (96, 96, 3)
     batch_size = 32
     epochs = 100
     steps_per_epoch = len(x_train) // batch_size
-    lossfun='categorical_crossentropy'
-    optimizer='Adam'
-    metrics=['accuracy']
+    lossfun = 'categorical_crossentropy'
+    optimizer = 'Adam'
+    metrics = ['accuracy']
     g = gen_p()
 
     inputs = Input(shape=input_shape)
@@ -146,8 +144,10 @@ def tune(x_train, y_train, x_test, y_test):
 
 # In[15]:
 
-
 best_run, best_model = optim.minimize(
-    model=tune, data=data, algo=tpe.suggest, max_evals=10, trials=Trials(),
+    model=tune,
+    data=data,
+    algo=tpe.suggest,
+    max_evals=10,
+    trials=Trials(),
     notebook_name='tune_augmentor')
-
