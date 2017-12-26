@@ -95,13 +95,14 @@ def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1. / 255):
         y = l2i[row['label']]
         f = row['path']
 
-        x = arr_fromf(f)
+        x = arr_fromf(f, resize=resize, rescale=rescale)
         x_data.append(x)
         y_data.append(y)
     x_data = np.array(x_data)
     y_data = np.array(y_data)
 
     return x_data, y_data
+
 
 
 def undersampling_df(data_frame, sampling_size=None):

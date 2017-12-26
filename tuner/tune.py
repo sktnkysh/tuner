@@ -13,24 +13,56 @@ from hyperopt import Trials, STATUS_OK, tpe
 from hyperas.distributions import choice, uniform, conditional
 
 
-def compute_loss(lossfun='categorical_crossentropy',
-                 optimizer=keras.optimizers.rmsprop(lr=0.005, decay=1e-6),
-                 metrics=['accuracy'],
-                 batch_size=32,
-                 epochs=1):
+def fit(lossfun='categorical_crossentropy',
+        optimizer=keras.optimizers.rmsprop(lr=0.005, decay=1e-6),
+        metrics=['accuracy'],
+        batch_size=32,
+        epochs=1):
 
     def wrap(target_net):
 
         def forward(x_train, y_train, x_test, y_test):
             n_out = y_train.shape[-1]
             input_shape = x_train.shape[1:]
-            model = target_net(n_out=n_out)
+            model = target_net(n_out=n_out, input_shape=input_shape)
+            print('build model')
             model.compile(loss=lossfun, optimizer=optimizer, metrics=metrics)
             model.fit(
                 x_train,
                 y_train,
                 batch_size=batch_size,
                 epochs=epochs,
+                verbose=2,
+                validation_data=(x_test, y_test))
+            score, acc = model.evaluate(x_test, y_test, verbose=0)
+            print('Test accuracy:', acc)
+            return {'loss': -acc, 'status': STATUS_OK, 'model': model}
+
+        return forward
+
+    return wrap
+
+
+def fit_generator(lossfun='categorical_crossentropy',
+                  optimizer=keras.optimizers.rmsprop(lr=0.005, decay=1e-6),
+                  metrics=['accuracy'],
+                  batch_size=32,
+                  epochs=1,
+                  steps_per_epochs=1):
+
+    def wrap(tuning_aug):
+
+        def forward(x_train, y_train, x_test, y_test):
+            n_out = y_train.shape[-1]
+            input_shape = x_train.shape[1:]
+            model = target_net(n_out=n_out, input_shape=input_shape)
+            print('build model')
+            model.compile(loss=lossfun, optimizer=optimizer, metrics=metrics)
+            model.fit_generator(
+                g,
+                batch_size=batch_size,
+                epochs=epochs,
+                steps_per_epochs=steps_per_epochs,
                 verbose=2,
                 validation_data=(x_test, y_test))
             score, acc = model.evaluate(x_test, y_test, verbose=0)
