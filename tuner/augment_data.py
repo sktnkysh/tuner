@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import Augmentor
 from tuner import utils
@@ -20,21 +21,30 @@ def _augment_dir(src_dir, sampling_size=10, condition_file='cond.json'):
     p.sample(sampling_size)
 
 
-def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json'):
+def exec_p(p, sampling_size):
+    p.sample(sampling_size)
+
+
+def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
     #if os.path.exists(out_dir):
     #    raise 'exsists {}'.format(out_dir)
-    _augment_dir(src_dir, sampling_size, condition_file)
-    utils.mvtree(os.path.join(src_dir, 'output'), out_dir)
+    if p:
+        exec_p(p, sampling_size)
+    else:
+        _augment_dir(src_dir, sampling_size, condition_file)
+    #utils.mvtree(os.path.join(src_dir, 'output'), out_dir)
+    for file in os.path.join(src_dir, 'output'):
+        shutil.move(file, out_dir)
 
 
-def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.json'):
+def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
     labels = os.listdir(src_dir)
     utils.mkdir(out_dir)
     for label in labels:
         read_dir = os.path.join(src_dir, label)
         write_dir = os.path.join(out_dir, label)
         #utils.mkdir(write_dir)
-        augment_dir(read_dir, write_dir, sampling_size, condition_file)
+        augment_dir(read_dir, write_dir, sampling_size, condition_file, p)
 
 
 import numpy as np
@@ -73,3 +83,28 @@ def search_condition(data, result_file='cond.json'):
     with open(result_file, 'w') as f:
         json.dump(best_run, f)
         print('{} dump.'.format(result_file))
+
+
+import subprocess
+from tuner import net
+
+
+def exec_hyperas(train_dir, validation_dir, model):
+    template_fname = 'template_base_hyperas.py'
+    with open(template_fname, 'r') as f:
+        template_code = f.read()
+
+    code_hyperas = template_code.format(
+        train_dir=train_dir, validation_dir=validation_dir, model=model.__name__)
+
+    fname = 'code_hyperas.py'
+    with open(fname, 'w') as f:
+        f.write(code_hyperas)
+
+    subprocess.run(['python', fname])
+
+
+if __name__ == '__main__':
+    train_dir = '../examples/dataset/brain/train'
+    validation_dir = '../examples/dataset/brain/validation'
+    exec_hyperas(train_dir, validation_dir, net.aug)

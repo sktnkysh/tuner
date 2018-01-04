@@ -33,4 +33,7 @@ def search_model(data, result_file=None):
         trials=Trials(),
     )
 
-    best_model.save('simplenet.hdf5')
+
+    fname = 'simplenet.hdf5'
+    best_model.save(fname)
+    return fname

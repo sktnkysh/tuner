@@ -43,7 +43,7 @@ jspm_packages
 *.JPEG
 *.zip
 *ipynb_checkpoints/
-*/__pycache__/
+*__pycache__/
 */models/
 */data/
 dataset/

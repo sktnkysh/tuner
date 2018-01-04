@@ -38,7 +38,7 @@ def df_fromdir_brain(dir_name):
         d = (fname, label)
         fname_label.append(d)
 
-    df = pd.DataFrame(fname_label, columns=['fname', 'label'])
+    df = pd.DataFrame(fname_label, columns=['name', 'label'])
     return df
 
 
@@ -52,16 +52,16 @@ def _format_brain(src_dir, dst_dir):
         utils.mkdir(os.path.join(dst_dir, label))
 
     for k, col in df.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(dst_dir, col['label'], col['fname'])
+        read_fname = os.path.join(src_dir, col['name'])
+        write_fname = os.path.join(dst_dir, col['label'], col['name'])
         shutil.copy(read_fname, write_fname)
 
 
-def format_brain(src_dir, dst_dir, val_size=0.1):
+def format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
     train_dir = os.path.join(dst_dir, 'train')
     val_dir = os.path.join(dst_dir, 'validation')
 
-    df = df_fromdir_brain(src_dir)
+    df = df_fromdir(src_dir)
     labels = list(set(df['label']))
 
     utils.mkdir(dst_dir)
@@ -73,13 +73,17 @@ def format_brain(src_dir, dst_dir, val_size=0.1):
 
     df_train, df_val = train_val_split_df(df, val_size=val_size)
     for k, col in df_train.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(train_dir, col['label'], col['fname'])
+        read_fname =\
+                os.path.join(src_dir, col['name']) if mode=='brain' else\
+                os.path.join(src_dir, col['label'], col['name'])
+        write_fname = os.path.join(train_dir, col['label'], col['name'])
         shutil.copy(read_fname, write_fname)
 
     for k, col in df_val.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(val_dir, col['label'], col['fname'])
+        read_fname =\
+                os.path.join(src_dir, col['name']) if mode=='brain' else\
+                os.path.join(src_dir, col['label'], col['name'])
+        write_fname = os.path.join(val_dir, col['label'], col['name'])
         shutil.copy(read_fname, write_fname)
 
 
@@ -129,8 +133,12 @@ def arr2img(arr):
 
 
 def arr_fromf(f, resize=RESIZE, rescale=1):
-    resize = resize if type(resize) is tuple else (resize, resize)
-    img = Image.open(f).resize(resize, Image.LANCZOS)
-    if f.endswith('png') or f.endswith('PNG'):
-        img = img.convert('RGB')
+    resize = None if resize is None else\
+            resize if type(resize) is tuple else\
+            (resize, resize)
+
+    img = Image.open(f)
+    if not resize is None:
+        img = img.resize(resize, Image.LANCZOS)
+    img = img.convert('RGB')
     return np.asarray(img) * rescale
