@@ -28,18 +28,25 @@ def exec_p(p, sampling_size):
 def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
     #if os.path.exists(out_dir):
     #    raise 'exsists {}'.format(out_dir)
+    utils.mkdir(out_dir)
     if p:
         exec_p(p, sampling_size)
     else:
         _augment_dir(src_dir, sampling_size, condition_file)
     #utils.mvtree(os.path.join(src_dir, 'output'), out_dir)
-    for file in os.path.join(src_dir, 'output'):
-        shutil.move(file, out_dir)
+    augmentor_out_dir = os.path.join(src_dir, 'output')
+    for fname in os.listdir(augmentor_out_dir):
+        src_file = os.path.join(augmentor_out_dir, fname)
+        dst_file = os.path.join(out_dir, fname)
+        if os.path.isfile(src_file):
+            shutil.move(src_file, dst_file)
+    shutil.rmtree(augmentor_out_dir)
 
 
 def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
     labels = os.listdir(src_dir)
     utils.mkdir(out_dir)
+    print(src_dir, out_dir)
     for label in labels:
         read_dir = os.path.join(src_dir, label)
         write_dir = os.path.join(out_dir, label)

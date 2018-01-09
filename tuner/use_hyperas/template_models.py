@@ -39,7 +39,7 @@ def aug(x_train, y_train, x_test, y_test):
         p.random_erasing(probability=0.5, rectangle_area=0.2)
     if conditional({{choice([True, False])}}):
         p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
-    print('-'*80)
+    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     p.status()
     g = p.keras_generator_from_array(x_train, y_train, batch_size=batch_size)
     g = ((x / 255., y) for (x, y) in g)

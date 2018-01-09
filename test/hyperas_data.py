@@ -1,6 +1,6 @@
 def data():
-    train_dir = 'standard_datasets/5a4dfb57b037cb7a58fdcaf1/train' 
-    test_dir = 'standard_datasets/5a4dfb57b037cb7a58fdcaf1/validation'
+    train_dir = 'standard_datasets/5a4e3a66b037cb9b8e2ef254/auged' 
+    test_dir = 'standard_datasets/5a4e3a66b037cb9b8e2ef254/validation'
     resize = 96 
     rescale = 1 
     df = utils.df_fromdir(train_dir)
