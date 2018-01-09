@@ -1,5 +1,8 @@
 import subprocess
-from tuner import net
+import json
+
+import numpy as np
+
 from hyperopt import hp
 from hyperopt import Trials, STATUS_OK, tpe
 from hyperas import optim
@@ -20,9 +23,15 @@ from keras.applications.imagenet_utils import _obtain_input_shape
 import Augmentor
 
 from tuner import utils
+from tuner import load_data
+from tuner import net
 
 
-def exec_hyperas(train_dir, validation_dir, model):
+def exec_hyperas(\
+        train_dir, validation_dir, model,
+        resize=96, rescale=1, batch_size=32, epochs=10,
+        loss='categorical_crossentropy',
+        optimizer='adam'):
     template_fname = 'hyperas_template_data.py'
     with open(template_fname, 'r') as f:
         template_code = f.read()
@@ -33,6 +42,19 @@ def exec_hyperas(train_dir, validation_dir, model):
         f.write(code)
 
     from hyperas_data import data
+    df = utils.df_fromdir(validation_dir)
+    x_test, y_test = load_data.load_fromdf(df, resize=resize, rescale=rescale)
+
+    params = {
+        'n_out': np.unique(y_test).size,
+        'input_shape': x_test.shape[1:],
+        'batch_size': batch_size,
+        'epochs': epochs,
+        'lossfun': loss,
+        'optimizer': optimizer
+    }
+    with open('tmp_params.json', 'w') as f:
+        json.dump(params, f)
 
     best_condition, best_model = optim.minimize(
         model=model,

@@ -1,0 +1,36 @@
+inputs = Input(shape=input_shape)
+x = inputs
+x = Conv2D(32, (3, 3))(x)
+x = Conv2D(32, (3, 3))(x)
+x = Activation('relu')(x)
+x = MaxPooling2D(pool_size=(2, 2))(x)
+x = Conv2D(64, (3, 3))(x)
+x = Conv2D(64, (3, 3))(x)
+x = Activation('relu')(x)
+x = MaxPooling2D(pool_size=(2, 2))(x)
+x = Dropout(0.25)(x)
+x = Flatten()(x)
+x = Dense(512)(x)
+x = Activation('relu')(x)
+x = Dropout(0.5)(x)
+x = Dense(n_out)(x)
+x = Activation('softmax')(x)
+model = Model(inputs=inputs, outputs=x)
+
+model.compile(
+    loss=lossfun,
+    optimizer=keras.optimizers.rmsprop(lr=0.0001, decay=1e-6),
+    metrics=['accuracy'])
+
+model.fit_generator(
+    g,
+    steps_per_epoch=steps_per_epoch,
+    validation_data=(x_test, y_test),
+    epochs=epochs,
+    verbose=2,
+)
+score, acc = model.evaluate(x_test, y_test, verbose=0)
+print('Test accuracy:', acc)
+
+#return dict(zip(['loss', 'status', 'model'], [-acc, STATUS_OK, model]))
+return {'loss': -acc, 'status': STATUS_OK, 'model': model}

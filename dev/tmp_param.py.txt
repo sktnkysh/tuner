@@ -1,0 +1,8 @@
+    n_out = 2
+    input_shape = 96
+    batch_size = 32
+    epochs = 10
+    steps_per_epoch = len(x_train) // batch_size
+    lossfun = 'categorical_crossentropy'
+    optimizer = 'adam'
+    metrics = ['accuracy']

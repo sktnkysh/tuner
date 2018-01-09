@@ -23,24 +23,24 @@ import Augmentor
 
 
 def base(x_train, y_train, x_test, y_test):
-    n_out = {n_out}
-    input_shape = {input_shape}
-    batch_size = {batch_size}
-    epochs = {epochs}
+    n_out = 2
+    input_shape = 96
+    batch_size = 32
+    epochs = 10
     steps_per_epoch = len(x_train) // batch_size
-    lossfun = '{lossfun}'
-    optimizer = '{optimizer}'
+    lossfun = 'categorical_crossentropy'
+    optimizer = 'adam'
     metrics = ['accuracy']
 
     p = Augmentor.Pipeline()
 
     p.flip_left_right(probability=0.5)
-    if conditional({{choice([True, False])}}):
+    if conditional({choice([True, False])}):
         p.crop_random(probability=1, percentage_area=0.8)
         p.resize(probability=1, width=96, height=96)
-    if conditional({{choice([True, False])}}):
+    if conditional({choice([True, False])}):
         p.random_erasing(probability=0.5, rectangle_area=0.2)
-    if conditional({{choice([True, False])}}):
+    if conditional({choice([True, False])}):
         p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     p.status()
@@ -80,5 +80,6 @@ def base(x_train, y_train, x_test, y_test):
     )
     score, acc = model.evaluate(x_test, y_test, verbose=0)
     print('Test accuracy:', acc)
-    
-    return dict(zip(['loss', 'status', 'model'], [-acc, STATUS_OK, model]))
+
+    #return dict(zip(['loss', 'status', 'model'], [-acc, STATUS_OK, model]))
+    return {'loss': -acc, 'status': STATUS_OK, 'model': model}

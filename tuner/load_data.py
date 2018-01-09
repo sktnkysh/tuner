@@ -12,6 +12,10 @@ from tuner import utils
 RESIZE = 28
 
 
+def format_dirname(dirname):
+    return dirname.replace('//', '/')
+
+
 def df_fromdir(data_dir, columns=['name', 'label']):
     fname_label = []
 
@@ -21,24 +25,25 @@ def df_fromdir(data_dir, columns=['name', 'label']):
             d = (fname, label)
             fname_label.append(d)
     df = pd.DataFrame(fname_label, columns=columns)
-    df['path'] = utils.format_dirname(data_dir + '/' + df['label'] + '/' + df['name'])
+    df['org_path'] = format_dirname(data_dir + '/' + df['label'] + '/' + df['name'])
     return df
 
 
-def df_fromdir_brain(dir_name):
+def df_fromdir_brain(data_dir):
 
     def strint_separator(f):
         return [''.join(it) for _, it in itertools.groupby(f, str.isdigit)]
 
     fname_label = []
     # for removing .DS_Store
-    flist = [f for f in os.listdir(dir_name) if '.jpg' in f]
+    flist = [f for f in os.listdir(data_dir) if '.jpg' in f]
     for fname in flist:
         label = strint_separator(fname)[0]  # 'N','MS','PD' or'PS'
         d = (fname, label)
         fname_label.append(d)
 
     df = pd.DataFrame(fname_label, columns=['name', 'label'])
+    df['org_path'] = format_dirname(data_dir + '/' + df['name'])
     return df
 
 
@@ -57,7 +62,7 @@ def _format_brain(src_dir, dst_dir):
         shutil.copy(read_fname, write_fname)
 
 
-def format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
+def _format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
     train_dir = os.path.join(dst_dir, 'train')
     val_dir = os.path.join(dst_dir, 'validation')
 
@@ -83,6 +88,32 @@ def format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
         read_fname =\
                 os.path.join(src_dir, col['name']) if mode=='brain' else\
                 os.path.join(src_dir, col['label'], col['name'])
+        write_fname = os.path.join(val_dir, col['label'], col['name'])
+        shutil.copy(read_fname, write_fname)
+
+
+def format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
+    train_dir = os.path.join(dst_dir, 'train')
+    val_dir = os.path.join(dst_dir, 'validation')
+
+    df = df_fromdir_brain(src_dir) if mode == 'brain' else df_fromdir(src_dir)
+    labels = list(set(df['label']))
+
+    utils.mkdir(dst_dir)
+    utils.mkdir(train_dir)
+    utils.mkdir(val_dir)
+    for label in labels:
+        utils.mkdir(os.path.join(train_dir, label))
+        utils.mkdir(os.path.join(val_dir, label))
+
+    df_train, df_val = train_val_split_df(df, val_size=val_size)
+    for k, col in df_train.iterrows():
+        read_fname = col['org_path']
+        write_fname = os.path.join(train_dir, col['label'], col['name'])
+        shutil.copy(read_fname, write_fname)
+
+    for k, col in df_val.iterrows():
+        read_fname = col['org_path']
         write_fname = os.path.join(val_dir, col['label'], col['name'])
         shutil.copy(read_fname, write_fname)
 
