@@ -6,5 +6,6 @@
 *__pycache__/
 */models/
 */data/
+*standard_datasets/
 dataset/
 micin-dataset/

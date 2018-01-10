@@ -12,15 +12,12 @@ from tuner import utils
 RESIZE = 28
 
 
-def format_dirname(dirname):
-    return dirname.replace('//', '/')
-
 def get_labels_fromdir(dataset_dir):
     return next(os.walk(dataset_dir))[1]
 
+
 def df_fromdir(dataset_dir, columns=['name', 'label']):
     fname_label = []
-
 
     labels = get_labels_fromdir(dataset_dir)
     for label in labels:
@@ -28,50 +25,51 @@ def df_fromdir(dataset_dir, columns=['name', 'label']):
             d = (fname, label)
             fname_label.append(d)
     df = pd.DataFrame(fname_label, columns=columns)
-    df['handle'] = format_dirname(df['label'] + '/' + df['name'])
-    df['path'] = format_dirname(dataset_dir + '/' + df['label'] + '/' + df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
+    df['path'] = utils.path_join(dataset_dir, df['label'], df['name'])
     return df
 
 
-def df_fromdir_brain(dataset_dir):
+def df_fromdir_eyes(eyes_dir, teaching_file='label.csv'):
+    f = os.path.join(eyes_dir, teaching_file)
+    ends = f.split('.')[-1]
+    sep = {'csv': ',', 'tsv': '\t'}[ends]
+    df = pd.read_csv(f, sep=sep)
 
+    df_can = pd.DataFrame(os.listdir(eyes_dir), columns=['name'])
+    df_can = df_can[df_can['name'].str.match('.+\.(jpg|png|gif|JPG|JPEG)')]
+    df_can['id'] = df_can['name'].apply(lambda s: ''.join(s.split('.')[:-1]))
+
+    df = pd.merge(df, df_can, on='id', how='left')
+
+    df['path'] = utils.path_join(eyes_dir, df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
+    return df
+
+
+def df_fromdir_brain(brain_dir):
+
+    # PD061.jpg -> [PD, 061, .jpg]
     def strint_separator(f):
         return [''.join(it) for _, it in itertools.groupby(f, str.isdigit)]
 
-    fname_label = []
-    # for removing .DS_Store
-    flist = [f for f in os.listdir(dataset_dir) if '.jpg' in f]
-    for fname in flist:
-        label = strint_separator(fname)[0]  # 'N','MS','PD' or'PS'
-        d = (fname, label)
-        fname_label.append(d)
+    def extra_label(f):
+        return strint_separator(f)[0]
 
-    df = pd.DataFrame(fname_label, columns=['name', 'label'])
-    df['handle'] = format_dirname(df['label'] + '/' + df['name'])
-    df['path'] = format_dirname(dataset_dir + '/' + df['name'])
+    df = pd.DataFrame(os.listdir(brain_dir), columns=['name'])
+    df = df[df['name'].str.match('.+\.(jpg|png|gif|JPG|JPEG)')]
+
+    df['label'] = df['name'].map(extra_label)
+    df['path'] = utils.path_join(brain_dir, df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
     return df
 
 
-def _format_brain(src_dir, dst_dir):
-
-    df = df_fromdir_brain(src_dir)
-    labels = list(set(df['label']))
-
-    utils.mkdir(dst_dir)
-    for label in labels:
-        utils.mkdir(os.path.join(dst_dir, label))
-
-    for k, col in df.iterrows():
-        read_fname = os.path.join(src_dir, col['name'])
-        write_fname = os.path.join(dst_dir, col['label'], col['name'])
-        shutil.copy(read_fname, write_fname)
-
-
-def _format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
+def ready_dir_fromdf(src_df, dst_dir, val_size=0.1):
+    df = src_df
     train_dir = os.path.join(dst_dir, 'train')
     val_dir = os.path.join(dst_dir, 'validation')
 
-    df = df_fromdir(src_dir)
     labels = list(set(df['label']))
 
     utils.mkdir(dst_dir)
@@ -82,45 +80,14 @@ def _format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
         utils.mkdir(os.path.join(val_dir, label))
 
     df_train, df_val = train_val_split_df(df, val_size=val_size)
+    df_train['dst_path'] = utils.path_join(train_dir, df['label'], df['name'])
+    df_val['dst_path'] = utils.path_join(val_dir, df['label'], df['name'])
+
     for k, col in df_train.iterrows():
-        read_fname =\
-                os.path.join(src_dir, col['name']) if mode=='brain' else\
-                os.path.join(src_dir, col['label'], col['name'])
-        write_fname = os.path.join(train_dir, col['label'], col['name'])
-        shutil.copy(read_fname, write_fname)
+        shutil.copy(str(col['path']), str(col['dst_path']))
 
     for k, col in df_val.iterrows():
-        read_fname =\
-                os.path.join(src_dir, col['name']) if mode=='brain' else\
-                os.path.join(src_dir, col['label'], col['name'])
-        write_fname = os.path.join(val_dir, col['label'], col['name'])
-        shutil.copy(read_fname, write_fname)
-
-
-def format_dataset(src_dir, dst_dir, val_size=0.1, mode='brain'):
-    train_dir = os.path.join(dst_dir, 'train')
-    val_dir = os.path.join(dst_dir, 'validation')
-
-    df = df_fromdir_brain(src_dir) if mode == 'brain' else df_fromdir(src_dir)
-    labels = list(set(df['label']))
-
-    utils.mkdir(dst_dir)
-    utils.mkdir(train_dir)
-    utils.mkdir(val_dir)
-    for label in labels:
-        utils.mkdir(os.path.join(train_dir, label))
-        utils.mkdir(os.path.join(val_dir, label))
-
-    df_train, df_val = train_val_split_df(df, val_size=val_size)
-    for k, col in df_train.iterrows():
-        read_fname = col['path']
-        write_fname = os.path.join(train_dir, col['label'], col['name'])
-        shutil.copy(read_fname, write_fname)
-
-    for k, col in df_val.iterrows():
-        read_fname = col['path']
-        write_fname = os.path.join(val_dir, col['label'], col['name'])
-        shutil.copy(read_fname, write_fname)
+        shutil.copy(str(col['path']), str(col['dst_path']))
 
 
 def train_val_split_df(data_frame, val_size=0.1):
