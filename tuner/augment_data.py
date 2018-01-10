@@ -3,7 +3,7 @@ import shutil
 import json
 import Augmentor
 from tuner import utils
-from tuner.load_data import df_fromdir, load_fromdf
+from tuner.load_data import df_fromdir, load_fromdf, get_labels_fromdir
 
 
 def _augment_dir(src_dir, sampling_size=10, condition_file='cond.json'):
@@ -25,15 +25,8 @@ def exec_p(p, sampling_size):
     p.sample(sampling_size)
 
 
-def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
-    #if os.path.exists(out_dir):
-    #    raise 'exsists {}'.format(out_dir)
-    utils.mkdir(out_dir)
-    if p:
-        exec_p(p, sampling_size)
-    else:
-        _augment_dir(src_dir, sampling_size, condition_file)
-    #utils.mvtree(os.path.join(src_dir, 'output'), out_dir)
+def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json'):
+    _augment_dir(src_dir, sampling_size, condition_file)
     augmentor_out_dir = os.path.join(src_dir, 'output')
     for fname in os.listdir(augmentor_out_dir):
         src_file = os.path.join(augmentor_out_dir, fname)
@@ -43,15 +36,20 @@ def augment_dir(src_dir, out_dir, sampling_size=10, condition_file='cond.json', 
     shutil.rmtree(augmentor_out_dir)
 
 
-def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.json', p=None):
-    labels = os.listdir(src_dir)
+def augment_dataset_custom_p(p_root_dir, dst_dir, p, sampling_size=10):
+    exec_p(p, sampling_size)
+    augmentor_out_dir = os.path.join(p_root_dir, 'output')
+    utils.mvtree(augmentor_out_dir, dst_dir)
+
+
+def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.json'):
+    labels = get_labels_fromdir(src_dir)
     utils.mkdir(out_dir)
     print(src_dir, out_dir)
     for label in labels:
         read_dir = os.path.join(src_dir, label)
         write_dir = os.path.join(out_dir, label)
-        #utils.mkdir(write_dir)
-        augment_dir(read_dir, write_dir, sampling_size, condition_file, p)
+        augment_dir(read_dir, write_dir, sampling_size, condition_file)
 
 
 import numpy as np
