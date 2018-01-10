@@ -16,6 +16,13 @@ def mkdir(target_dir):
         os.makedirs(target_dir, exist_ok=True)
 
 
+def maxmin_normalize(x, axis=None):
+    min = x.min(axis=axis, keepdims=True)
+    max = x.max(axis=axis, keepdims=True)
+    result = (x - min) / (max - min)
+    return result
+
+
 def mvtree(src_dir, dst_dir):
     shutil.copytree(src_dir, dst_dir)
     shutil.rmtree(src_dir)

@@ -17,10 +17,10 @@ from tuner import net
 
 class ClassificationDataset(object):
 
-    def __init__(self, dataset_dir):
+    def __init__(self, classed_dataset_dir):
         self._id = ObjectId()
         self.id = str(self._id)
-        self.original_dataset_path = dataset_dir
+        self.original_dataset_path = classed_dataset_dir 
         self.path = 'standard_datasets/{}'.format(self.id)
         self.train_dir = os.path.join(self.path, 'train')
         self.validation_dir = os.path.join(self.path, 'validation')
