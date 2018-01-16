@@ -65,6 +65,21 @@ def df_fromdir_brain(brain_dir):
     return df
 
 
+def classed_dir_fromdf(src_df, dst_dir, val_size=0.1):
+    df = src_df
+
+    labels = list(set(df['label']))
+
+    utils.mkdir(dst_dir)
+    for label in labels:
+        utils.mkdir(os.path.join(dst_dir, label))
+
+    df['dst_path'] = utils.path_join(dst_dir, df['label'], df['name'])
+
+    for k, col in df.iterrows():
+        shutil.copy(str(col['path']), str(col['dst_path']))
+
+
 def ready_dir_fromdf(src_df, dst_dir, val_size=0.1):
     df = src_df
     train_dir = os.path.join(dst_dir, 'train')
