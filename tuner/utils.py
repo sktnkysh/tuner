@@ -1,5 +1,7 @@
 import os
 import shutil
+from functools import reduce
+
 import pandas as pd
 
 import numpy as np
@@ -12,7 +14,19 @@ from pytz import timezone
 
 def mkdir(target_dir):
     if not os.path.exists(target_dir):
-        os.mkdir(target_dir)
+        #os.mkdir(target_dir)
+        os.makedirs(target_dir, exist_ok=True)
+
+
+def path_join(*args):
+    return reduce(lambda a, b: a + '/' + b, args).replace('//', '/')
+
+
+def maxmin_normalize(x, axis=None):
+    min = x.min(axis=axis, keepdims=True)
+    max = x.max(axis=axis, keepdims=True)
+    result = (x - min) / (max - min)
+    return result
 
 
 def mvtree(src_dir, dst_dir):

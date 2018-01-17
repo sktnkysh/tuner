@@ -22,111 +22,20 @@ from keras.preprocessing.image import ImageDataGenerator
 import Augmentor
 
 
-def aug(x_train, y_train, x_test, y_test):
-    n_out = 4
-    input_shape = (96, 96, 3)
-    batch_size = 32
-    epochs = 10
+def base_model(x_train, y_train, x_test, y_test):
+    n_out = {n_out}
+    input_shape = {input_shape}
+    batch_size = {batch_size}
+    epochs = {epochs}
     steps_per_epoch = len(x_train) // batch_size
-
-    p = Augmentor.Pipeline()
-
-    p.flip_left_right(probability=0.5)
-    if conditional({{choice([True, False])}}):
-        p.crop_random(probability=1, percentage_area=0.8)
-        p.resize(probability=1, width=96, height=96)
-    if conditional({{choice([True, False])}}):
-        p.random_erasing(probability=0.5, rectangle_area=0.2)
-    if conditional({{choice([True, False])}}):
-        p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
-    print('-' * 80)
-    p.status()
-    g = p.keras_generator_from_array(x_train, y_train, batch_size=batch_size)
-    g = ((x / 255., y) for (x, y) in g)
-
-    inputs = Input(shape=input_shape)
-    x = inputs
-    x = Conv2D(32, (3, 3))(x)
-    x = Conv2D(32, (3, 3))(x)
-    x = Activation('relu')(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = Activation('relu')(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Dropout(0.25)(x)
-    x = Flatten()(x)
-    x = Dense(512)(x)
-    x = Activation('relu')(x)
-    x = Dropout(0.5)(x)
-    x = Dense(n_out)(x)
-    x = Activation('softmax')(x)
-    model = Model(inputs=inputs, outputs=x)
-    model.compile(
-        loss='categorical_crossentropy',
-        optimizer=keras.optimizers.rmsprop(lr=0.0001, decay=1e-6),
-        metrics=['accuracy'])
-
-    model.fit_generator(
-        g,
-        steps_per_epoch=steps_per_epoch,
-        validation_data=(x_test, y_test),
-        epochs=epochs,
-        verbose=2,
-    )
-    score, acc = model.evaluate(x_test, y_test, verbose=0)
-    print('Test accuracy:', acc)
-    return {'loss': -acc, 'status': STATUS_OK, 'model': model}
-
-
-def neoaug(x_train, y_train, x_test, y_test):
-    params = eval(open('tmp_params.json', 'r').read())
-
-    n_out = params['n_out']
-    input_shape = tuple(params['input_shape'])
-    batch_size = params['batch_size']
-    epochs = params['epochs']
-    lossfun = params['lossfun']
-    optimizer = params['optimizer']
+    lossfun = '{lossfun}'
+    optimizer = '{optimzer}'
     metrics = ['accuracy']
 
-    steps_per_epoch = len(x_train) // batch_size
+{network}
 
-    p = Augmentor.Pipeline()
-
-    p.flip_left_right(probability=0.5)
-    if conditional({{choice([True, False])}}):
-        p.crop_random(probability=1, percentage_area=0.8)
-        p.resize(probability=1, width=96, height=96)
-    if conditional({{choice([True, False])}}):
-        p.random_erasing(probability=0.5, rectangle_area=0.2)
-    if conditional({{choice([True, False])}}):
-        p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
-    print('-' * 80)
-    p.status()
-    g = p.keras_generator_from_array(x_train, y_train, batch_size=batch_size)
-    g = ((x / 255., y) for (x, y) in g)
-
-    inputs = Input(shape=input_shape)
-    x = inputs
-    x = Conv2D(32, (3, 3))(x)
-    x = Conv2D(32, (3, 3))(x)
-    x = Activation('relu')(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = Conv2D(64, (3, 3))(x)
-    x = Activation('relu')(x)
-    x = MaxPooling2D(pool_size=(2, 2))(x)
-    x = Dropout(0.25)(x)
-    x = Flatten()(x)
-    x = Dense(512)(x)
-    x = Activation('relu')(x)
-    x = Dropout(0.5)(x)
-    x = Dense(n_out)(x)
-    x = Activation('softmax')(x)
-    model = Model(inputs=inputs, outputs=x)
     model.compile(
-        loss='categorical_crossentropy',
+        loss=lossfun,
         optimizer=keras.optimizers.rmsprop(lr=0.0001, decay=1e-6),
         metrics=['accuracy'])
 
@@ -143,14 +52,13 @@ def neoaug(x_train, y_train, x_test, y_test):
 
 
 def simplenet(x_train, y_train, x_test, y_test):
-    params = eval(open('tmp_params.json', 'r').read())
-
-    n_out = params['n_out']
-    input_shape = tuple(params['input_shape'])
-    batch_size = params['batch_size']
-    epochs = params['epochs']
-    lossfun = params['lossfun']
-    optimizer = params['optimizer']
+    n_out = y_train.shape[-1]
+    input_shape = (96, 96, 3)
+    batch_size = 32
+    epochs = 100
+    steps_per_epoch = len(x_train) // batch_size
+    lossfun = 'categorical_crossentropy'
+    optimizer = 'Adam'
     metrics = ['accuracy']
 
     inputs = Input(shape=input_shape)
@@ -175,8 +83,7 @@ def simplenet(x_train, y_train, x_test, y_test):
     model = Model(inputs=inputs, outputs=x)
     model.compile(loss=lossfun, optimizer=optimizer, metrics=metrics)
     model.fit(
-        x_train,
-        y_train,
+        x_train, y_train,
         batch_size=batch_size,
         epochs=epochs,
         verbose=2,
