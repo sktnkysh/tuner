@@ -29,8 +29,8 @@ validation = 'dataset/brain/validation'
 df_train = utils.df_fromdir(train_dir)
 df_test = utils.df_fromdir(train_dir)
 
-x_train, y_train = utils.load_fromdf(df_train)
-x_test, y_test = utils.load_fromdf(df_test)
+x_train, y_train = load_data.load_fromdf(df_train)
+x_test, y_test = load_data.load_fromdf(df_test)
 y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 
