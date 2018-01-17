@@ -21,7 +21,7 @@ class ClassificationDataset(object):
         self.id = str(self._id)
         self.classed_dataset_dir = classed_dataset_dir
 
-        self.path = 'standard_datasets/{}'.format(self.id)
+        self.path = os.path.abspath('standard_datasets/{}'.format(self.id))
         self.train_dir = os.path.join(self.path, 'train')
         self.validation_dir = os.path.join(self.path, 'validation')
 
@@ -30,11 +30,11 @@ class ClassificationDataset(object):
         self.n_label = self.n_labels = len(self.df['label'].drop_duplicates())
 
     def _split_train_val(self):
-        tmp_df = load_data.df_fromdir(self.classed_dataset_dir)
+        tmp_df = load_data.df_fromdir_classed(self.classed_dataset_dir)
         load_data.ready_dir_fromdf(tmp_df, self.path)
 
-        self.df_train = load_data.df_fromdir(self.train_dir)
-        self.df_validation = load_data.df_fromdir(self.validation_dir)
+        self.df_train = load_data.df_fromdir_classed(self.train_dir)
+        self.df_validation = load_data.df_fromdir_classed(self.validation_dir)
 
         df1 = self.df_train
         df2 = self.df_validation
@@ -51,7 +51,7 @@ class ClassificationDataset(object):
     def _load_train_data(self, resize=28, rescale=1):
         self.resize = resize
         self.rescale = rescale
-        df = load_data.df_fromdir(self.train_dir)
+        df = load_data.df_fromdir_classed(self.train_dir)
         x_train, y_train = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
         self.x_train = x_train
         self.y_train = y_train
@@ -61,7 +61,7 @@ class ClassificationDataset(object):
     def _load_validation_data(self, resize=28, rescale=1):
         self.resize = resize
         self.rescale = rescale
-        df = load_data.df_fromdir(self.validation_dir)
+        df = load_data.df_fromdir_classed(self.validation_dir)
         x_val, y_val = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
         self.x_validation = self.x_val = x_val
         self.y_validation = self.y_val = y_val
@@ -100,7 +100,7 @@ class AugmentDataset(object):
         augment_data.augment_dataset_custom_p(
             self.dataset.train_dir, self.augmented_dir, sampling_size=sampling_size, p=self.p)
         print('augment dataset done.')
-        self.df_augmented = load_data.df_fromdir(self.augmented_dir)
+        self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
         self.df_train = self.df_augmented
 
     def augment_dataset(self, sampling_size=None):
@@ -113,13 +113,13 @@ class AugmentDataset(object):
             condition_file=self.augment_condition,
             sampling_size=sampling_size,
             p=None)
-        self.df_augmented = load_data.df_fromdir(self.augmented_dir)
+        self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
         self.df_train = self.df_augmented
 
     def _load_augmented_data(self, resize=28, rescale=1):
         self.resize = resize
         self.rescale = rescale
-        df = load_data.df_fromdir(self.augmented_dir)
+        df = load_data.df_fromdir_classed(self.augmented_dir)
         x_train, y_train = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
         return x_train, y_train
 

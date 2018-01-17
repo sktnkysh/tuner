@@ -45,7 +45,7 @@ def exec_hyperas(\
         f.write(code)
 
     from hyperas_data import data
-    df = load_data.df_fromdir(validation_dir)
+    df = load_data.df_fromdir_classed(validation_dir)
     print(df)
     x_test, y_test = load_data.load_fromdf(df, resize=resize, rescale=rescale)
 

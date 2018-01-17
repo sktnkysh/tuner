@@ -73,11 +73,11 @@ except:
 def data():
     train_dir = os.path.join(args.dataset_dir, 'train')
     val_dir = os.path.join(args.dataset_dir, 'val')
-    df = utils.df_fromdir(train_dir)
+    df = utils.df_fromdir_classed(train_dir)
     df = utils.oversampling_df(df, 80)
     #x_train, y_train = load_data.load_fromdf(df, resize=96)
     x_train, y_train = load_data.load_fromdf(df, resize=96, rescale=1)
-    df = utils.df_fromdir(val_dir)
+    df = utils.df_fromdir_classed(val_dir)
     #x_val, y_val = load_data.load_fromdf(df)
     x_val, y_val = load_data.load_fromdf(df, resize=96, rescale=1)
 

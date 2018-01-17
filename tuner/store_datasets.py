@@ -91,7 +91,7 @@ dataset_id
 # In[8]:
 
 data_table = 'data_{}'.format(dataset_id)
-data_df = load_data.df_fromdir(dataset_dir)
+data_df = load_data.df_fromdir_classed(dataset_dir)
 data_df['path'] = utils.format_dirname(dataset_dir) + data_df['label'] + '/' + data_df['fname']
 data_df.to_sql(data_table, conn)
 co.update({'_id':dataset_id},{'$set':{'data':data_table}})
@@ -114,7 +114,7 @@ dataset_info = {
 }
 dataset_id = co.insert(dataset_info)
 data_table = 'data_{}'.format(dataset_id)
-data_df = load_data.df_fromdir(dataset_dir)
+data_df = load_data.df_fromdir_classed(dataset_dir)
 data_df['path'] = utils.format_dirname(dataset_dir) + data_df['label'] + '/' + data_df['fname']
 data_df.to_sql(data_table, conn)
 co.update({'_id':dataset_id},{'$set':{'data':data_table}})

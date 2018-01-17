@@ -30,11 +30,11 @@ args = parser.parse_args()
 def data():
     train_dname = '../examples/dataset/brain/train'
     test_dname = '../examples/dataset/brain/validation'
-    df = utils.df_fromdir(train_dname)
+    df = utils.df_fromdir_classed(train_dname)
     df = utils.oversampling_df(df, 80)
     #x_train, y_train = load_data.load_fromdf(df, resize=96)
     x_train, y_train = load_data.load_fromdf(df, resize=96, rescale=1)
-    df = utils.df_fromdir(test_dname)
+    df = utils.df_fromdir_classed(test_dname)
     #x_test, y_test = load_data.load_fromdf(df)
     x_test, y_test = load_data.load_fromdf(df, resize=96, rescale=1)
 

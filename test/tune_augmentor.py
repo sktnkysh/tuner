@@ -34,11 +34,11 @@ import net
 def data():
     train_dname = '../examples/dataset/brain/train'
     val_dname = '../examples/dataset/brain/validation'
-    df = utils.df_fromdir(train_dname)
+    df = utils.df_fromdir_classed(train_dname)
     df = utils.oversampling_df(df, 80)
     #x_train, y_train = load_data.load_fromdf(df, resize=96)
     x_train, y_train = load_data.load_fromdf(df, resize=96, rescale=1)
-    df = utils.df_fromdir(val_dname)
+    df = utils.df_fromdir_classed(val_dname)
     #x_val, y_test = load_data.load_fromdf(df)
     x_val, y_test = load_data.load_fromdf(df, resize=96, rescale=1)
 

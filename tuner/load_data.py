@@ -21,7 +21,11 @@ def get_labels_fromdir(dataset_dir):
     return [c for c in can if c != 'output']
 
 
-def df_fromdir(classed_dir, columns=['name', 'label']):
+def df_fromdir_classed(classed_dir, columns=['name', 'label']):
+    print('#' * 40)
+    print(classed_dir)
+    print(os.path.abspath(classed_dir))
+    print('#' * 40)
     fname_label = []
 
     labels = get_labels_fromdir(classed_dir)
@@ -29,6 +33,7 @@ def df_fromdir(classed_dir, columns=['name', 'label']):
         for fname in os.listdir(os.path.join(classed_dir, label)):
             d = (fname, label)
             fname_label.append(d)
+    print(os.listdir(os.path.join(classed_dir, label)))
     df = pd.DataFrame(fname_label, columns=columns)
     df['handle'] = utils.path_join(df['label'], df['name'])
     df['path'] = utils.path_join(classed_dir, df['label'], df['name'])
@@ -146,7 +151,7 @@ def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1):
 
 
 def load_fromdir(dataset_dir, label2id=None, resize=RESIZE, rescale=1):
-    df = df_fromdir(dataset_dir)
+    df = df_fromdir_classed(dataset_dir)
     x_data, y_data = load_fromdf(df, label2id=label2id, resize=resize, rescale=rescale)
     return x_data, y_data
 
