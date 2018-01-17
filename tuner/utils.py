@@ -107,27 +107,6 @@ def data_fromdir(dir_name, label2id=None, resize=RESIZE):
     return x_data, y_data
 
 
-def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1. / 255):
-
-    df = dataframe
-    labels = list(set(df['label']))
-    l2i = label2id if label2id else {label: i for i, label in enumerate(labels)}
-
-    x_data = []
-    y_data = []
-    for idx, row in df.iterrows():
-        y = l2i[row['label']]
-        f = row['path']
-
-        x = arr_fromf(f, resize=resize, rescale=rescale)
-        x_data.append(x)
-        y_data.append(y)
-    x_data = np.array(x_data)
-    y_data = np.array(y_data)
-
-    return x_data, y_data
-
-
 def undersampling_df(data_frame, sampling_size=None):
     df = data_frame
     labels = set(df['label'])
@@ -161,18 +140,6 @@ def oversampling_df(data_frame, sampling_size=None):
                   for label in labels]).flatten()
     sampling_data = df.loc[sampling_idx].reset_index()
     return sampling_data
-
-
-def arr2img(arr):
-    return Image.fromarray(np.uint8(arr))
-
-
-def arr_fromf(f, resize=RESIZE, rescale=1):
-    resize = resize if type(resize) is tuple else (resize, resize)
-    img = Image.open(f).resize(resize, Image.LANCZOS)
-    if f.endswith('png') or f.endswith('PNG'):
-        img = img.convert('RGB')
-    return np.asarray(img) * rescale
 
 
 #

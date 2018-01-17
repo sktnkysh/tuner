@@ -146,8 +146,10 @@ def load_fromdir(dataset_dir, label2id=None, resize=RESIZE, rescale=1):
     return x_data, y_data
 
 
-def arr2img(arr):
-    return Image.fromarray(np.uint8(arr))
+def arr2img(arr, rescale=1):
+    arr = arr * rescale
+    arr = arr.astype(np.uint8)
+    return Image.fromarray(arr)
 
 
 def arr_fromf(f, resize=RESIZE, rescale=1):

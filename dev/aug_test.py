@@ -32,11 +32,11 @@ def data():
     test_dname = '../examples/dataset/brain/validation'
     df = utils.df_fromdir(train_dname)
     df = utils.oversampling_df(df, 80)
-    #x_train, y_train = utils.load_fromdf(df, resize=96)
-    x_train, y_train = utils.load_fromdf(df, resize=96, rescale=1)
+    #x_train, y_train = load_data.load_fromdf(df, resize=96)
+    x_train, y_train = load_data.load_fromdf(df, resize=96, rescale=1)
     df = utils.df_fromdir(test_dname)
-    #x_test, y_test = utils.load_fromdf(df)
-    x_test, y_test = utils.load_fromdf(df, resize=96, rescale=1)
+    #x_test, y_test = load_data.load_fromdf(df)
+    x_test, y_test = load_data.load_fromdf(df, resize=96, rescale=1)
 
     y_train = to_categorical(y_train)
     y_test = to_categorical(y_test)

@@ -20,13 +20,19 @@ class ClassificationDataset(object):
     def __init__(self, classed_dataset_dir):
         self._id = ObjectId()
         self.id = str(self._id)
-        self.original_dataset_path = classed_dataset_dir 
+        self.classed_dataset_dir = classed_dataset_dir
+        
         self.path = 'standard_datasets/{}'.format(self.id)
         self.train_dir = os.path.join(self.path, 'train')
         self.validation_dir = os.path.join(self.path, 'validation')
 
         utils.mkdir(self.path)
-        load_data.format_dataset(self.original_dataset_path, self.path, mode='eyes')
+        self._split_train_val()
+        self.n_label = self.n_labels = len(self.df['label'].drop_duplicates())
+
+    def _split_train_val(self):
+        tmp_df = load_data.df_fromdir(self.classed_dataset_dir)
+        load_data.ready_dir_fromdf(tmp_df, self.path)
 
         self.df_train = load_data.df_fromdir(self.train_dir)
         self.df_validation = load_data.df_fromdir(self.validation_dir)
@@ -36,8 +42,6 @@ class ClassificationDataset(object):
         df1['t/v'] = 'train'
         df2['t/v'] = 'validatoin'
         self.df = pd.concat([df1, df2])
-
-        self.n_label = self.n_labels = len(self.df_train['label'].drop_duplicates())
 
     def counts_train_data(self):
         return self.df_train['label'].value_counts().to_dict()
