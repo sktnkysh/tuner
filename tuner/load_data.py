@@ -22,10 +22,6 @@ def get_labels_fromdir(dataset_dir):
 
 
 def df_fromdir_classed(classed_dir, columns=['name', 'label']):
-    print('#' * 40)
-    print(classed_dir)
-    print(os.path.abspath(classed_dir))
-    print('#' * 40)
     fname_label = []
 
     labels = get_labels_fromdir(classed_dir)
@@ -33,7 +29,6 @@ def df_fromdir_classed(classed_dir, columns=['name', 'label']):
         for fname in os.listdir(os.path.join(classed_dir, label)):
             d = (fname, label)
             fname_label.append(d)
-    print(os.listdir(os.path.join(classed_dir, label)))
     df = pd.DataFrame(fname_label, columns=columns)
     df['handle'] = utils.path_join(df['label'], df['name'])
     df['path'] = utils.path_join(classed_dir, df['label'], df['name'])
@@ -105,8 +100,8 @@ def ready_dir_fromdf(src_df, dst_dir, val_size=0.1):
         utils.mkdir(os.path.join(val_dir, label))
 
     df_train, df_val = train_val_split_df(df, val_size=val_size)
-    df_train['dst_path'] = utils.path_join(train_dir, df['label'], df['name'])
-    df_val['dst_path'] = utils.path_join(val_dir, df['label'], df['name'])
+    df_train['dst_path'] = utils.path_join(train_dir, df_train['label'], df_train['name'])
+    df_val['dst_path'] = utils.path_join(val_dir, df_val['label'], df_val['name'])
 
     for k, col in df_train.iterrows():
         shutil.copy(str(col['path']), str(col['dst_path']))

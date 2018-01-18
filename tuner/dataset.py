@@ -35,6 +35,7 @@ class ClassificationDataset(object):
 
         self.df_train = load_data.df_fromdir_classed(self.train_dir)
         self.df_validation = load_data.df_fromdir_classed(self.validation_dir)
+        self.df_val = self.df_validation
 
         df1 = self.df_train
         df2 = self.df_validation
@@ -51,8 +52,8 @@ class ClassificationDataset(object):
     def _load_train_data(self, resize=28, rescale=1):
         self.resize = resize
         self.rescale = rescale
-        df = load_data.df_fromdir_classed(self.train_dir)
-        x_train, y_train = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
+        x_train, y_train = load_data.load_fromdf(\
+                self.df_train, resize=self.resize, rescale=self.rescale)
         self.x_train = x_train
         self.y_train = y_train
         self.train_data = (x_train, y_train)
@@ -61,10 +62,13 @@ class ClassificationDataset(object):
     def _load_validation_data(self, resize=28, rescale=1):
         self.resize = resize
         self.rescale = rescale
-        df = load_data.df_fromdir_classed(self.validation_dir)
-        x_val, y_val = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
+        x_val, y_val = load_data.load_fromdf(\
+                self.df_validation, resize=self.resize, rescale=self.rescale)
         self.x_validation = self.x_val = x_val
         self.y_validation = self.y_val = y_val
+        print('y_val', y_val)
+        print('self.y_val', self.y_val)
+        print('self.y_validation', self.y_validation)
         self.validation_data = (x_val, y_val)
         return x_val, y_val
 
@@ -83,7 +87,9 @@ class AugmentDataset(object):
         self.df_validation = self.dataset.df_validation
         self.augment_condition = 'cond.json'
         self.augmented_dir = os.path.join(self.dataset.path, 'auged')
+        utils.mkdir(self.augmented_dir)
         self.train_dir = self.augmented_dir
+        self.validation_dir = self.dataset.validation_dir
         self.p = Augmentor.Pipeline(self.dataset.train_dir)
 
     def search_opt_augment(self, model=net.aug):

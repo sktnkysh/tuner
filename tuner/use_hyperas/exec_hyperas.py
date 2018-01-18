@@ -38,11 +38,11 @@ def exec_hyperas(\
     with open(template_fname, 'r') as f:
         template_code = f.read()
 
-    print(template_code)
     fname = 'hyperas_data.py'
     with open(fname, 'w') as f:
         code = template_code.format(train_dir=train_dir, validation_dir=validation_dir)
         f.write(code)
+    print(code)
 
     from hyperas_data import data
     df = load_data.df_fromdir_classed(validation_dir)
