@@ -3,6 +3,7 @@
 *.jpg
 *.JPEG
 *.zip
+*.hdf5
 
 *ready/
 *tmp/
