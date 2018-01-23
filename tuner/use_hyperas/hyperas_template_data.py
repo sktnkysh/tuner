@@ -1,8 +1,8 @@
 def data():
-    train_dir = '{train_dir}' 
+    train_dir = '{train_dir}'
     test_dir = '{validation_dir}'
-    resize = 96 
-    rescale = 1 
+    resize = '{resize}'
+    rescale = '{rescale}'
     df = load_data.df_fromdir_classed(train_dir)
     x_train, y_train = load_data.load_fromdf(df, resize=resize, rescale=rescale)
     df = load_data.df_fromdir_classed(test_dir)

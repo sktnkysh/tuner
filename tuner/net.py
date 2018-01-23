@@ -142,6 +142,55 @@ def neoaug(x_train, y_train, x_test, y_test):
     return {'loss': -acc, 'status': STATUS_OK, 'model': model}
 
 
+def basic(x_train, y_train, x_test, y_test):
+    params = eval(open('tmp_params.json', 'r').read())
+
+    n_out = params['n_out']
+    input_shape = tuple(params['input_shape'])
+    batch_size = params['batch_size']
+    epochs = params['epochs']
+    lossfun = params['lossfun']
+    optimizer = params['optimizer']
+    metrics = ['accuracy']
+
+    inputs = Input(shape=input_shape)
+    x = inputs
+    ch = {{choice([16, 32])}}
+    x = Conv2D(ch, (3, 3))(x)
+    x = Conv2D(ch, (3, 3))(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+
+    ch = {{choice([32, 64])}}
+    x = Conv2D(ch, (3, 3))(x)
+    x = Conv2D(ch, (3, 3))(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Dropout(0.25)(x)
+    x = Flatten()(x)
+    x = Dense(512)(x)
+    x = Activation('relu')(x)
+    x = Dropout(0.5)(x)
+    x = Dense(n_out)(x)
+    x = Activation('softmax')(x)
+    model = Model(inputs=inputs, outputs=x)
+    model.compile(
+        loss='categorical_crossentropy',
+        optimizer=keras.optimizers.rmsprop(lr=0.0001, decay=1e-6),
+        metrics=['accuracy'])
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=epochs,
+        verbose=2,
+        validation_data=(x_test, y_test))
+
+    score, acc = model.evaluate(x_test, y_test, verbose=0)
+    print('Test accuracy:', acc)
+    return {'loss': -acc, 'status': STATUS_OK, 'model': model}
+
+
 def simplenet(x_train, y_train, x_test, y_test):
     params = eval(open('tmp_params.json', 'r').read())
 

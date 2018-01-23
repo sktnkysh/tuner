@@ -40,7 +40,12 @@ def exec_hyperas(\
 
     fname = 'hyperas_data.py'
     with open(fname, 'w') as f:
-        code = template_code.format(train_dir=train_dir, validation_dir=validation_dir)
+        code = template_code.format(
+            train_dir=train_dir,
+            validation_dir=validation_dir,
+            resize=resize,
+            rescale=rescale,
+        )
         f.write(code)
     print(code)
 

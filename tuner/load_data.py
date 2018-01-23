@@ -157,11 +157,11 @@ def arr2img(arr):
 
 def arr_fromf(f, resize=RESIZE, rescale=1):
     resize = None if resize is None else\
-            resize if type(resize) is tuple else\
-            (resize, resize)
+            tuple([int(e) for e in resize]) if isinstance(resize, tuple) else\
+            (int(resize), int(resize))
 
     img = Image.open(f)
     if not resize is None:
         img = img.resize(resize, Image.LANCZOS)
     img = img.convert('RGB')
-    return np.asarray(img) * rescale
+    return np.asarray(img) * float(rescale)

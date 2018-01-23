@@ -87,7 +87,9 @@ class AugmentDataset(object):
         self.augmented_dir = os.path.join(self.dataset.path, 'auged')
         self.train_dir = self.augmented_dir
         self.validation_dir = self.dataset.validation_dir
-        self.p = Augmentor.Pipeline(self.dataset.train_dir)
+
+        #self.p = Augmentor.Pipeline(self.dataset.train_dir)
+        # => Augmentor.Pipeline do make directory 'output' in args of Pipeline
 
     def search_opt_augment(self, model=net.aug):
         best_condition, best_model = use_hyperas.exec_hyperas(\
@@ -96,22 +98,15 @@ class AugmentDataset(object):
         with open(self.augment_condition, 'w') as f:
             json.dump(best_condition, f)
 
-        def clean_side_effect():
-            side_dir = os.path.join(self.dataset.train_dir, 'output')
-            if os.path.exists(side_dir):
-                shutil.rmtree(side_dir)
-
-        clean_side_effect()
-
-    def augment_dataset_custom_p(self, sampling_size=None):
-        sampling_size =\
-            sampling_size if sampling_size else\
-            min(self.dataset.counts_train_data().values()) * 4
-        augment_data.augment_dataset_custom_p(
-            self.dataset.train_dir, self.augmented_dir, sampling_size=sampling_size, p=self.p)
-        print('augment dataset done.')
-        self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
-        self.df_train = self.df_augmented
+    #def augment_dataset_custom_p(self, sampling_size=None):
+    #    sampling_size =\
+    #        sampling_size if sampling_size else\
+    #        min(self.dataset.counts_train_data().values()) * 4
+    #    augment_data.augment_dataset_custom_p(
+    #        self.dataset.train_dir, self.augmented_dir, sampling_size=sampling_size, p=self.p)
+    #    print('augment dataset done.')
+    #    self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
+    #    self.df_train = self.df_augmented
 
     def augment_dataset(self, sampling_size=None):
         if os.path.exists(self.augmented_dir):
