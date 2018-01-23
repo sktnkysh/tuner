@@ -104,7 +104,8 @@ def neoaug(x_train, y_train, x_test, y_test):
         p.shear(probability=0.3, max_shear_left=2, max_shear_right=2)
     print('-' * 80)
     p.status()
-    g = p.keras_generator_from_array(x_train, y_train, batch_size=batch_size)
+
+    g = p.keras_generator_from_array(x_train.astype(np.uint8), y_train, batch_size=batch_size)
     g = ((x / 255., y) for (x, y) in g)
 
     inputs = Input(shape=input_shape)
