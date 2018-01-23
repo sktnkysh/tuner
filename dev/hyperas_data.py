@@ -1,6 +1,6 @@
 def data():
-    train_dir = '/home/fytroo/Tuner/dev/standard_datasets/5a67031cb037cb528757c444/auged'
-    test_dir = '/home/fytroo/Tuner/dev/standard_datasets/5a67031cb037cb528757c444/validation'
+    train_dir = '/home/fytroo/Tuner/dev/standard_datasets/5a670683b037cb562cc8c116/auged'
+    test_dir = '/home/fytroo/Tuner/dev/standard_datasets/5a670683b037cb562cc8c116/validation'
     resize = '96'
     rescale = '0.00392156862745098'
     df = load_data.df_fromdir_classed(train_dir)
