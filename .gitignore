@@ -1,7 +1,12 @@
 *.png
+*.json
 *.jpg
 *.JPEG
 *.zip
+
+*ready/
+*tmp/
+
 *ipynb_checkpoints/
 *__pycache__/
 */models/

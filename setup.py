@@ -5,7 +5,7 @@ setup(
     version='0.0.1',
     description='auto tuning machiner learning',
     license='MIT',
-    author='fytroo',
-    url='https://github.com/fytroo/tuner',
+    author='FUKUDA Yutaro',
+    url='https://github.com/sktnkysh/tuner',
     packages=find_packages(),
-    )
+)

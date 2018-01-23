@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 from bson.objectid import ObjectId
 
@@ -66,9 +67,6 @@ class ClassificationDataset(object):
                 self.df_validation, resize=self.resize, rescale=self.rescale)
         self.x_validation = self.x_val = x_val
         self.y_validation = self.y_val = y_val
-        print('y_val', y_val)
-        print('self.y_val', self.y_val)
-        print('self.y_validation', self.y_validation)
         self.validation_data = (x_val, y_val)
         return x_val, y_val
 
@@ -87,7 +85,6 @@ class AugmentDataset(object):
         self.df_validation = self.dataset.df_validation
         self.augment_condition = 'cond.json'
         self.augmented_dir = os.path.join(self.dataset.path, 'auged')
-        utils.mkdir(self.augmented_dir)
         self.train_dir = self.augmented_dir
         self.validation_dir = self.dataset.validation_dir
         self.p = Augmentor.Pipeline(self.dataset.train_dir)
@@ -98,6 +95,13 @@ class AugmentDataset(object):
             self.dataset.validation_dir, model)
         with open(self.augment_condition, 'w') as f:
             json.dump(best_condition, f)
+
+        def clean_side_effect():
+            side_dir = os.path.join(self.dataset.train_dir, 'output')
+            if os.path.exists(side_dir):
+                shutil.rmtree(side_dir)
+
+        clean_side_effect()
 
     def augment_dataset_custom_p(self, sampling_size=None):
         sampling_size =\
@@ -110,6 +114,8 @@ class AugmentDataset(object):
         self.df_train = self.df_augmented
 
     def augment_dataset(self, sampling_size=None):
+        if os.path.exists(self.augmented_dir):
+            shutil.rmtree(self.augmented_dir)
         sampling_size =\
             sampling_size if sampling_size else\
             min(self.dataset.counts_train_data().values()) * 4
@@ -118,9 +124,20 @@ class AugmentDataset(object):
             self.augmented_dir,
             condition_file=self.augment_condition,
             sampling_size=sampling_size,
-            p=None)
+        )
         self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
         self.df_train = self.df_augmented
+
+        def clean_side_effect():
+            target_dir = self.augmented_dir
+            for label in os.listdir(target_dir):
+                label_dir = os.path.join(target_dir, label)
+                for d in os.listdir(label_dir):
+                    d = os.path.join(label_dir, d)
+                    if os.path.isdir(d):
+                        shutil.rmtree(d)
+
+        clean_side_effect()
 
     def _load_augmented_data(self, resize=28, rescale=1):
         self.resize = resize
