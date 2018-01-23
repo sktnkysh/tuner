@@ -26,7 +26,7 @@ def shuffle_df(df):
     return df
 
 
-def df_fromdir(data_dir, columns=['name', 'label']):
+def df_fromdir_classed(data_dir, columns=['name', 'label']):
     fname_label = []
 
     labels = os.listdir(data_dir)

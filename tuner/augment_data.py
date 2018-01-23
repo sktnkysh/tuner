@@ -2,7 +2,7 @@ import os
 import json
 import Augmentor
 from tuner import utils
-from tuner.load_data import df_fromdir, load_fromdf
+from tuner.load_data import df_fromdir_classed, load_fromdf
 
 
 def _augment_dir(src_dir, sampling_size=10, condition_file='cond.json'):

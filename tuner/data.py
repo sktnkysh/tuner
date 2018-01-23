@@ -39,7 +39,7 @@ def eyes_raw():
     df = utils.load_eyes_data('../micin/ynzw_result.csv.tsv')
     df = utils.oversampling(df, 400)
     df = df.reindex(np.random.permutation(df.index)).reset_index(drop=True)
-    x_data, y_data, categories = utils.load_from_dataframe(
+    x_data, y_data, categories = load_data.load_from_dataframe(
         df, dir_name=data_dir)
 
     x_test, y_test = x_data[:len(x_data) // 10], y_data[:len(y_data) // 10]
@@ -155,7 +155,7 @@ def _eyes():
     df = utils.load_eyes_data('../micin/ynzw_result.csv.tsv')
     df = utils.oversampling(df, 400)
     df = df.reindex(np.random.permutation(df.index)).reset_index(drop=True)
-    x_data, y_data, categories = utils.load_from_dataframe(
+    x_data, y_data, categories = load_data.load_from_dataframe(
         df, dir_name=data_dir)
 
     x_test, y_test = x_data[:len(x_data) // 10], y_data[:len(y_data) // 10]

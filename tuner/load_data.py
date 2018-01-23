@@ -12,56 +12,84 @@ from tuner import utils
 RESIZE = 28
 
 
-def df_fromdir(data_dir, columns=['name', 'label']):
+def get_labels_fromdir(dataset_dir):
+    # hyperas don't allowed itertor
+    #can = next(os.walk(dataset_dir))[1]
+
+    can = os.listdir(dataset_dir)
+    can = [c for c in can if os.path.isdir(os.path.join(dataset_dir, c))]
+    return [c for c in can if c != 'output']
+
+
+def df_fromdir_classed(classed_dir, columns=['name', 'label']):
     fname_label = []
 
-    labels = os.listdir(data_dir)
+    labels = get_labels_fromdir(classed_dir)
     for label in labels:
-        for fname in os.listdir(os.path.join(data_dir, label)):
+        for fname in os.listdir(os.path.join(classed_dir, label)):
             d = (fname, label)
             fname_label.append(d)
     df = pd.DataFrame(fname_label, columns=columns)
-    df['path'] = utils.format_dirname(data_dir + '/' + df['label'] + '/' + df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
+    df['path'] = utils.path_join(classed_dir, df['label'], df['name'])
     return df
 
 
-def df_fromdir_brain(dir_name):
+def df_fromdir_eyes(eyes_dir, teaching_file='label.csv'):
+    f = os.path.join(eyes_dir, teaching_file)
+    ends = f.split('.')[-1]
+    sep = {'csv': ',', 'tsv': '\t'}[ends]
+    df = pd.read_csv(f, sep=sep)
 
+    df_can = pd.DataFrame(os.listdir(eyes_dir), columns=['name'])
+    df_can = df_can[df_can['name'].str.match('.+\.(jpg|png|gif|JPG|JPEG)')]
+    df_can['id'] = df_can['name'].apply(lambda s: ''.join(s.split('.')[:-1]))
+
+    df = pd.merge(df, df_can, on='id', how='left')
+
+    df['path'] = utils.path_join(eyes_dir, df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
+    return df
+
+
+def df_fromdir_brain(brain_dir):
+
+    # PD061.jpg -> [PD, 061, .jpg]
     def strint_separator(f):
         return [''.join(it) for _, it in itertools.groupby(f, str.isdigit)]
 
-    fname_label = []
-    # for removing .DS_Store
-    flist = [f for f in os.listdir(dir_name) if '.jpg' in f]
-    for fname in flist:
-        label = strint_separator(fname)[0]  # 'N','MS','PD' or'PS'
-        d = (fname, label)
-        fname_label.append(d)
+    def extra_label(f):
+        return strint_separator(f)[0]
 
-    df = pd.DataFrame(fname_label, columns=['fname', 'label'])
+    df = pd.DataFrame(os.listdir(brain_dir), columns=['name'])
+    df = df[df['name'].str.match('.+\.(jpg|png|gif|JPG|JPEG)')]
+
+    df['label'] = df['name'].map(extra_label)
+    df['path'] = utils.path_join(brain_dir, df['name'])
+    df['handle'] = utils.path_join(df['label'], df['name'])
     return df
 
 
-def _format_brain(src_dir, dst_dir):
+def classed_dir_fromdf(src_df, dst_dir, val_size=0.1):
+    df = src_df
 
-    df = df_fromdir_brain(src_dir)
     labels = list(set(df['label']))
 
     utils.mkdir(dst_dir)
     for label in labels:
         utils.mkdir(os.path.join(dst_dir, label))
 
+    df['dst_path'] = utils.path_join(dst_dir, df['label'], df['name'])
+
     for k, col in df.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(dst_dir, col['label'], col['fname'])
-        shutil.copy(read_fname, write_fname)
+        shutil.copy(str(col['path']), str(col['dst_path']))
 
 
-def format_brain(src_dir, dst_dir, val_size=0.1):
+def ready_dir_fromdf(src_df, dst_dir, val_size=0.1):
+    df = src_df
     train_dir = os.path.join(dst_dir, 'train')
     val_dir = os.path.join(dst_dir, 'validation')
 
-    df = df_fromdir_brain(src_dir)
     labels = list(set(df['label']))
 
     utils.mkdir(dst_dir)
@@ -72,15 +100,14 @@ def format_brain(src_dir, dst_dir, val_size=0.1):
         utils.mkdir(os.path.join(val_dir, label))
 
     df_train, df_val = train_val_split_df(df, val_size=val_size)
+    df_train['dst_path'] = utils.path_join(train_dir, df_train['label'], df_train['name'])
+    df_val['dst_path'] = utils.path_join(val_dir, df_val['label'], df_val['name'])
+
     for k, col in df_train.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(train_dir, col['label'], col['fname'])
-        shutil.copy(read_fname, write_fname)
+        shutil.copy(str(col['path']), str(col['dst_path']))
 
     for k, col in df_val.iterrows():
-        read_fname = os.path.join(src_dir, col['fname'])
-        write_fname = os.path.join(val_dir, col['label'], col['fname'])
-        shutil.copy(read_fname, write_fname)
+        shutil.copy(str(col['path']), str(col['dst_path']))
 
 
 def train_val_split_df(data_frame, val_size=0.1):
@@ -119,7 +146,7 @@ def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1):
 
 
 def load_fromdir(dataset_dir, label2id=None, resize=RESIZE, rescale=1):
-    df = df_fromdir(dataset_dir)
+    df = df_fromdir_classed(dataset_dir)
     x_data, y_data = load_fromdf(df, label2id=label2id, resize=resize, rescale=rescale)
     return x_data, y_data
 
@@ -129,8 +156,12 @@ def arr2img(arr):
 
 
 def arr_fromf(f, resize=RESIZE, rescale=1):
-    resize = resize if type(resize) is tuple else (resize, resize)
-    img = Image.open(f).resize(resize, Image.LANCZOS)
-    if f.endswith('png') or f.endswith('PNG'):
-        img = img.convert('RGB')
+    resize = None if resize is None else\
+            resize if type(resize) is tuple else\
+            (resize, resize)
+
+    img = Image.open(f)
+    if not resize is None:
+        img = img.resize(resize, Image.LANCZOS)
+    img = img.convert('RGB')
     return np.asarray(img) * rescale
