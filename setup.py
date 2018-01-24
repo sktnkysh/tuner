@@ -21,7 +21,14 @@ setup(
         ['format-dataset=tuner.scripts.format_dataset:main', 'toon=tuner.scripts.toon:main']
     },
     install_requires=[
-        'numpy', 'pandas', 'Pillow', 'bson', 'tensorflow>=1.1.0', 'keras',
+        'numpy',
+        'pandas',
+        'Pillow',
+        'bson',
+        'tensorflow>=1.1.0',
+        'keras',
+    ],
+    dependency_links=[
         'git+https://github.com/hyperopt/hyperopt.git',
         'git+https://github.com/mdbloice/Augmentor.git',
         'git+https://github.com/maxpumperla/hyperas.git'
