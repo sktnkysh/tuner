@@ -13,6 +13,7 @@ setup(
     long_description=readme,
     license=license,
     author='FUKUDA Yutaro',
+    author_email='sktnkysh+dev@gmail.com',
     url='https://github.com/sktnkysh/tuner',
     packages=find_packages(),
     entry_points={
