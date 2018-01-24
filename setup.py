@@ -1,10 +1,17 @@
 from setuptools import setup, find_packages
 
+with open('README.md', 'r') as f:
+    readme = f.read()
+
+with open('LICENSE', 'r') as f:
+    license = f.read()
+
 setup(
     name='tuner',
-    version='0.0.1',
+    version='0.0.2-alpha1',
     description='auto tuning machiner learning',
-    license='MIT',
+    long_description=readme,
+    license=license,
     author='FUKUDA Yutaro',
     url='https://github.com/sktnkysh/tuner',
     packages=find_packages(),
@@ -12,4 +19,9 @@ setup(
         'console_scripts':
         ['format-dataset=tuner.scripts.format_dataset:main', 'toon=tuner.scripts.toon:main']
     },
-)
+    install_requires=[
+        'numpy', 'pandas', 'Pillow', 'bson', 'tensorflow>=1.1.0', 'keras',
+        'git+https://github.com/hyperopt/hyperopt.git',
+        'git+https://github.com/mdbloice/Augmentor.git',
+        'git+https://github.com/maxpumperla/hyperas.git'
+    ])
