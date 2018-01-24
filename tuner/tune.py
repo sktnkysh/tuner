@@ -1,4 +1,5 @@
 import tensorflow as tf
+
 import keras
 from keras import backend as K
 from keras.datasets import mnist
@@ -8,8 +9,8 @@ from keras.layers import Input, Convolution2D, MaxPooling2D, Activation, concate
 from keras.models import Sequential, Model
 from keras.utils import np_utils, to_categorical
 
-from hyperas import optim
 from hyperopt import Trials, STATUS_OK, tpe
+from hyperas import optim
 from hyperas.distributions import choice, uniform, conditional
 
 

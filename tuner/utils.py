@@ -1,13 +1,35 @@
 import os
 import shutil
-import pandas as pd
+from functools import reduce
+from datetime import datetime
+from pytz import timezone
 
 import numpy as np
 from numpy.random import choice
+import pandas as pd
 from PIL import Image
 
-from datetime import datetime
-from pytz import timezone
+
+def mkdir(target_dir):
+    if not os.path.exists(target_dir):
+        #os.mkdir(target_dir)
+        os.makedirs(target_dir, exist_ok=True)
+
+
+def path_join(*args):
+    return reduce(lambda a, b: a + '/' + b, args).replace('//', '/')
+
+
+def maxmin_normalize(x, axis=None):
+    min = x.min(axis=axis, keepdims=True)
+    max = x.max(axis=axis, keepdims=True)
+    result = (x - min) / (max - min)
+    return result
+
+
+def mvtree(src_dir, dst_dir):
+    shutil.copytree(src_dir, dst_dir)
+    shutil.rmtree(src_dir)
 
 
 def now(isabout=False):
@@ -31,7 +53,7 @@ def shuffle_df(df):
     return df
 
 
-def df_fromdir(data_dir, columns=['name', 'label']):
+def df_fromdir_classed(data_dir, columns=['name', 'label']):
     fname_label = []
 
     labels = os.listdir(data_dir)
@@ -52,9 +74,9 @@ def train_test_split_df(data_frame, test_size=0.1):
     labels = set(df['label'])
     n = min(df['label'].value_counts())
     sampling_size = int(n * test_size)
-    sampling_idx = np.array(
-        [choice(df[df.label == label].index, sampling_size, replace=False)
-         for label in labels]).flatten()
+    sampling_idx = np.array([
+        choice(df[df.label == label].index, sampling_size, replace=False) for label in labels
+    ]).flatten()
     test_df = df.loc[sampling_idx].reset_index(drop=True)
     train_df = df.drop(sampling_idx).reset_index(drop=True)
     return train_df, test_df
@@ -104,7 +126,6 @@ def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1. / 255):
     return x_data, y_data
 
 
-
 def undersampling_df(data_frame, sampling_size=None):
     df = data_frame
     labels = set(df['label'])
@@ -112,9 +133,9 @@ def undersampling_df(data_frame, sampling_size=None):
     sampling_size =\
         sampling_size if sampling_size else\
         min(df['label'].value_counts())
-    sampling_idx = np.array(
-        [choice(df[df.label == label].index, sampling_size, replace=False)
-         for label in labels]).flatten()
+    sampling_idx = np.array([
+        choice(df[df.label == label].index, sampling_size, replace=False) for label in labels
+    ]).flatten()
     sampling_data = df.loc[sampling_idx].reset_index()
     return sampling_data
 
