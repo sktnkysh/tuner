@@ -1,13 +1,71 @@
+# Tuner
+
+## Requrement 
+- Python 2.7+ or Python3.5
+- TensorFlow
+- Keras
+- Hypereras
+- Augmentor
+
+## Installation
+
+```sh
+pip install git+https://github.com/sktnkysh/tuner
 ```
-python cmdline-flow-eyes.py -d micin-dataset/eyes -t label.tsv
-python cmdline-flow-brain.py -d micin-datatset/brain
+
+## Usage 
+
+```
+Usage:
+  format-dataset <dataset_dir> [options]
+
+Options:
+  --output                     classed datasset directory
+  --teachin-file               csv or tsv file.
+  --brain                      specific option
 ```
 
 ```
-python format_dataset.py ../micin-dataset/brain -o tmp/BRAIN --brain
-python format_dataset.py ../micin-dataset/eyes -o EYES -t label.tsv
+Usage:
+  toon <dataset_dir> [options]
 ```
 
+## Examples
+### format-dataset
+```sh
+$ ls dataset-dog-cat/
+cat1.jpg  cat2.jpg ...
+dog1.jpg  dog2.jpg ...
+
+$ format-dataset --brain dataset-dog-cat -o classed-dog-cat/
+classed-dog-cat 
+
+$ <a href='https://github.com/sktnkysh/filecount'>filecount</a> classed-dog-cat/
+./classed-dog-cat/cat 123
+./classed-dog-cat/dog 133
+./  256
+
+$ format-dataset --brain dataset-dog-cat -o classed-dog-cat/ | toon -o best-model.hdf5 &
 ```
-./format_dataset.py ../micin-dataset/brain --brain | ./toon.py
+
+```sh
+$ ls dataset-dog-cat/
+label.csv 1.jpg  2.jpg  3.jpg 4.jpg ...
+
+$ head label.csv
+id,lable
+1,dog
+2,cat
+3,cat
+...
+
+$ format-dataset dataset-dog-cat -o classed-dog-cat/ --teaching-file label.csv
+classed-dog-cat 
+
+$ <a href='https://github.com/sktnkysh/filecount'>filecount</a> classed-dog-cat/
+./classed-dog-cat/cat 123
+./classed-dog-cat/dog 133
+./  256
+
+$ format-dataset dataset-dog-cat -o classed-dog-cat/ -t label.csv | toon -o best-model.hdf5 &
 ```

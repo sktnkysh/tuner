@@ -1,6 +1,5 @@
 from __future__ import print_function
 import numpy as np
-from hyperopt import Trials, STATUS_OK, tpe
 
 import tensorflow as tf
 from keras import backend as K
@@ -10,14 +9,14 @@ from keras.layers import BatchNormalization
 from keras.layers import Input, Convolution2D, MaxPooling2D, Activation, concatenate, Dropout, warnings
 from keras.models import Sequential
 from keras.utils import np_utils
-
-from hyperas import optim
-from hyperas.distributions import choice, uniform, conditional
-
 from keras.models import Sequential
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.layers import Activation, Dropout, Flatten, Dense
 from keras.preprocessing.image import ImageDataGenerator
+
+from hyperopt import Trials, STATUS_OK, tpe
+from hyperas import optim
+from hyperas.distributions import choice, uniform, conditional
 
 import Augmentor
 

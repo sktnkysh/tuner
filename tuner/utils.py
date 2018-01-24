@@ -1,15 +1,13 @@
 import os
 import shutil
 from functools import reduce
-
-import pandas as pd
+from datetime import datetime
+from pytz import timezone
 
 import numpy as np
 from numpy.random import choice
+import pandas as pd
 from PIL import Image
-
-from datetime import datetime
-from pytz import timezone
 
 
 def mkdir(target_dir):
