@@ -40,7 +40,7 @@ dog1.jpg  dog2.jpg ...
 $ format-dataset --brain dataset-dog-cat -o classed-dog-cat/
 classed-dog-cat 
 
-$ <a href='https://github.com/sktnkysh/filecount'>filecount</a> classed-dog-cat/
+$ filecount classed-dog-cat/
 ./classed-dog-cat/cat 123
 ./classed-dog-cat/dog 133
 ./  256
@@ -59,13 +59,14 @@ id,lable
 3,cat
 ...
 
-$ format-dataset dataset-dog-cat -o classed-dog-cat/ --teaching-file label.csv
+$ filecount format-dataset dataset-dog-cat -o classed-dog-cat/ --teaching-file label.csv
 classed-dog-cat 
 
-$ <a href='https://github.com/sktnkysh/filecount'>filecount</a> classed-dog-cat/
+$  classed-dog-cat/
 ./classed-dog-cat/cat 123
 ./classed-dog-cat/dog 133
 ./  256
 
 $ format-dataset dataset-dog-cat -o classed-dog-cat/ -t label.csv | toon -o best-model.hdf5 &
 ```
+<a href='https://github.com/sktnkysh/filecount'>filecount</a>
