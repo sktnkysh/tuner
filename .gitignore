@@ -4,6 +4,8 @@
 *.JPEG
 *.zip
 *.hdf5
+dev/
+
 
 *ready/
 *tmp/

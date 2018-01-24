@@ -5,28 +5,7 @@ import os
 import sys
 import shutil
 import subprocess
-
-import numpy as np
-#
-#from hyperopt import hp
-#from hyperopt import Trials, STATUS_OK, tpe
-#from hyperas import optim
-#from hyperas.distributions import choice, uniform, conditional
-#
-#import tensorflow as tf
-#import keras
-#from keras import backend as K
-#from keras.datasets import mnist
-#from keras.layers import BatchNormalization, Flatten, Dense
-#from keras.layers import Input, Conv2D, Convolution2D
-#from keras.layers import Activation, concatenate, Dropout
-#from keras.layers import AveragePooling2D, GlobalAveragePooling2D, MaxPooling2D
-#from keras.models import Sequential, Model
-#from keras.utils import np_utils, to_categorical
-#from keras.applications.imagenet_utils import _obtain_input_shape
-#
-#import Augmentor
-#import json
+from datetime import datetime
 
 import tuner
 from tuner import utils
@@ -35,8 +14,6 @@ from tuner import augment_data
 from tuner import use_hyperas
 from tuner import net
 from tuner.dataset import ClassificationDataset, AugmentDataset
-
-from datetime import datetime
 
 import argparse
 parser = argparse.ArgumentParser()
