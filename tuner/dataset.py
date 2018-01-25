@@ -28,7 +28,10 @@ class ClassificationDataset(object):
 
         utils.mkdir(self.path)
         self._split_train_val()
-        self.n_label = self.n_labels = len(self.df['label'].drop_duplicates())
+        self.label = self.labels = sorted(list(set(self.df['label'])))
+        self.n_label = self.n_labels = len(self.labels)
+        self.id2label = self.i2l = {idx: label for idx, label in enumerate(self.labels)}
+        self.label2id = self.l2i = {label: idx for idx, label in self.id2label.items()}
 
     def _split_train_val(self):
         tmp_df = load_data.df_fromdir_classed(self.classed_dataset_dir)
@@ -54,7 +57,7 @@ class ClassificationDataset(object):
         self.resize = resize
         self.rescale = rescale
         x_train, y_train = load_data.load_fromdf(\
-                self.df_train, resize=self.resize, rescale=self.rescale)
+            self.df_train, label2id=self.label2id, resize=self.resize, rescale=self.rescale)
         self.x_train = x_train
         self.y_train = y_train
         self.train_data = (x_train, y_train)
@@ -64,7 +67,7 @@ class ClassificationDataset(object):
         self.resize = resize
         self.rescale = rescale
         x_val, y_val = load_data.load_fromdf(\
-                self.df_validation, resize=self.resize, rescale=self.rescale)
+            self.df_validation, label2id=self.label2id, resize=self.resize, rescale=self.rescale)
         self.x_validation = self.x_val = x_val
         self.y_validation = self.y_val = y_val
         self.validation_data = (x_val, y_val)
@@ -80,13 +83,17 @@ class ClassificationDataset(object):
 
 class AugmentDataset(object):
 
-    def __init__(self, standard_dataset):
-        self.dataset = standard_dataset
+    def __init__(self, classification_dataset):
+        self.dataset = classification_dataset
         self.df_validation = self.dataset.df_validation
         self.augment_condition = 'cond.json'
         self.augmented_dir = os.path.join(self.dataset.path, 'auged')
         self.train_dir = self.augmented_dir
         self.validation_dir = self.dataset.validation_dir
+        self.label = self.labels = self.dataset.labels
+        self.n_label = self.n_labels = self.dataset.n_labels
+        self.id2label = self.i2l = self.dataset.id2label
+        self.label2id = self.l2i = self.dataset.label2id
 
         #self.p = Augmentor.Pipeline(self.dataset.train_dir)
         # => Augmentor.Pipeline do make directory 'output' in args of Pipeline
@@ -138,7 +145,8 @@ class AugmentDataset(object):
         self.resize = resize
         self.rescale = rescale
         df = load_data.df_fromdir_classed(self.augmented_dir)
-        x_train, y_train = load_data.load_fromdf(df, resize=self.resize, rescale=self.rescale)
+        x_train, y_train = load_data.load_fromdf(
+            df, label2id=self.label2id, resize=self.resize, rescale=self.rescale)
         return x_train, y_train
 
     def load_data(self, resize=28, rescale=1):

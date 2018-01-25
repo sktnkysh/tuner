@@ -127,7 +127,7 @@ def train_val_split_df(data_frame, val_size=0.1):
 def load_fromdf(dataframe, label2id=None, resize=RESIZE, rescale=1):
 
     df = dataframe
-    labels = list(set(df['label']))
+    labels = sorted(list(set(df['label'])))
     l2i = label2id if label2id else {label: i for i, label in enumerate(labels)}
 
     x_data = []
