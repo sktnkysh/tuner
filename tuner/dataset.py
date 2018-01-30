@@ -102,8 +102,11 @@ class AugmentDataset(object):
         best_condition, best_model = use_hyperas.exec_hyperas(\
             self.dataset.train_dir,
             self.dataset.validation_dir, model)
+        def decode_numpy(dic):
+            return { key: value.tolist() for key, value in dic.items()}
         with open(self.augment_condition, 'w') as f:
-            json.dump(best_condition, f)
+            cond = decode_numpy(best_condition)
+            json.dump(cond, f)
 
     #def augment_dataset_custom_p(self, sampling_size=None):
     #    sampling_size =\
