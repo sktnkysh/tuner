@@ -1,7 +1,7 @@
 import os
 import shutil
 import json
-from bson.objectid import ObjectId
+import time
 
 import pandas as pd
 
@@ -18,7 +18,7 @@ from tuner import net
 class ClassificationDataset(object):
 
     def __init__(self, classed_dataset_dir):
-        self._id = ObjectId()
+        self._id = int(time.time())
         self.id = str(self._id)
         self.classed_dataset_dir = classed_dataset_dir
 
