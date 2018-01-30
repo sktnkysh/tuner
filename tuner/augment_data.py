@@ -64,7 +64,7 @@ def search_condition(data, result_file='cond.json'):
     from keras.applications.imagenet_utils import _obtain_input_shape
 
     best_run, best_model = optim.minimize(
-        model=net.aug,
+        model=net.neoaug,
         data=data,
         algo=tpe.suggest,
         max_evals=10,

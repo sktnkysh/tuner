@@ -98,7 +98,7 @@ class AugmentDataset(object):
         #self.p = Augmentor.Pipeline(self.dataset.train_dir)
         # => Augmentor.Pipeline do make directory 'output' in args of Pipeline
 
-    def search_opt_augment(self, model=net.aug):
+    def search_opt_augment(self, model=net.neoaug):
         best_condition, best_model = use_hyperas.exec_hyperas(\
             self.dataset.train_dir,
             self.dataset.validation_dir, model)
