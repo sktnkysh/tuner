@@ -116,9 +116,9 @@ def train_val_split_df(data_frame, val_size=0.1):
     labels = set(df['label'])
     n = min(df['label'].value_counts())
     sampling_size = int(n * val_size)
-    sampling_idx = np.array([
-        choice(df[df.label == label].index, sampling_size, replace=False) for label in labels
-    ]).flatten()
+    sampling_idx = np.array(
+        [choice(df[df.label == label].index, sampling_size, replace=False)
+         for label in labels]).flatten()
     val_df = df.loc[sampling_idx].reset_index(drop=True)
     train_df = df.drop(sampling_idx).reset_index(drop=True)
     return train_df, val_df
@@ -165,3 +165,38 @@ def arr_fromf(f, resize=RESIZE, rescale=1):
         img = img.resize(resize, Image.LANCZOS)
     img = img.convert('RGB')
     return np.asarray(img) * float(rescale)
+
+
+def undersampling_df(data_frame, sampling_size=None):
+    df = data_frame
+    labels = set(df['label'])
+
+    sampling_size =\
+        sampling_size if sampling_size else\
+        min(df['label'].value_counts())
+    sampling_idx = np.array(
+        [choice(df[df.label == label].index, sampling_size, replace=False)
+         for label in labels]).flatten()
+    sampling_data = df.loc[sampling_idx].reset_index()
+    return sampling_data
+
+
+def oversampling_df(data_frame, sampling_size=None):
+    df = data_frame
+    labels = set(df['label'])
+
+    sampling_size =\
+        sampling_size if sampling_size else\
+        max(df['label'].value_counts())
+
+    def sampling_idx_each_label(label):
+        idx = df[df.label == label].index
+        return \
+            choice(idx, sampling_size, replace=False) if sampling_size < len(idx) else\
+            np.concatenate([idx, choice(idx, sampling_size - len(idx))])
+
+    sampling_idx =\
+        np.array([sampling_idx_each_label(label)
+                  for label in labels]).flatten()
+    sampling_data = df.loc[sampling_idx].reset_index()
+    return sampling_data
