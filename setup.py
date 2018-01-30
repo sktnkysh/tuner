@@ -25,7 +25,7 @@ setup(
         'pandas',
         'Pillow',
         'bson',
-        'tensorflow>=1.1.0',
+        'tensorflow==1.1.0',
         'keras',
     ],
     dependency_links=[
