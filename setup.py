@@ -24,6 +24,7 @@ setup(
         'numpy',
         'pandas',
         'Pillow',
+        'h5py',
         'tensorflow==1.1.0',
         'keras',
     ],
