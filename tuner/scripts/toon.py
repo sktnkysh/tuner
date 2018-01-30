@@ -29,6 +29,7 @@ def main():
         help='dataset directory')
     parser.add_argument('-b', '--batchsize', dest='bs', type=int, default=32, help='batch size')
     parser.add_argument('-e', '--epochs', type=int, default=10, help='epochs')
+    parser.add_argument('-n', '--only-net', dest='is_only_net', action='store_true', help='epochs')
     args = parser.parse_args()
 
     if args.src_dir:
@@ -38,16 +39,19 @@ def main():
     else:
         parser.print_help()
 
-    print(src_dir)
+    ### 
     brain = ClassificationDataset(src_dir)
 
-    brain = AugmentDataset(brain)
+    if args.is_only_net:
+        pass
+    else:
+        brain = AugmentDataset(brain)
 
-    ### Search best condition of data augmentation
-    brain.search_opt_augment(model=net.neoaug)
+        ### Search best condition of data augmentation
+        brain.search_opt_augment(model=net.neoaug)
 
-    ### Execute data augmentation with best condition
-    brain.augment_dataset()
+        ### Execute data augmentation with best condition
+        brain.augment_dataset()
 
     ### Tuning hyper parameter of CNN
     best_condition, best_model = use_hyperas.exec_hyperas(
