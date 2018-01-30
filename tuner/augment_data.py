@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import Augmentor
 
@@ -6,10 +7,10 @@ from tuner import utils
 from tuner.load_data import df_fromdir_classed, load_fromdf
 
 
-def _augment_dir(src_dir, sampling_size=10, condition_file='cond.json'):
+def _augment_dir(src_dir, out_dir='output', sampling_size=10, condition_file='cond.json'):
     with open(condition_file, 'r') as f:
         conds = json.load(f)
-    p = Augmentor.Pipeline(src_dir)
+    p = Augmentor.Pipeline(src_dir, output_directory=out_dir)
     p.flip_left_right(probability=0.5)
     if conds['conditional']:
         p.crop_random(probability=1, percentage_area=0.8)
@@ -36,6 +37,30 @@ def augment_dataset(src_dir, out_dir, sampling_size=10, condition_file='cond.jso
         write_dir = os.path.join(out_dir, label)
         #utils.mkdir(write_dir)
         augment_dir(read_dir, write_dir, sampling_size, condition_file)
+
+
+def augment_classed_dataset(classed_dir,
+                            out_dir='auged',
+                            sampling_size=10,
+                            condition_file='cond.json'):
+    for label in os.listdir(classed_dir):
+        src_dir = os.path.join(classed_dir, label)
+        if not os.path.isdir(src_dir):
+            continue
+        rel_output_dir = os.path.join('../../', out_dir, label)
+
+        _augment_dir(
+            src_dir,
+            out_dir=rel_output_dir,
+            sampling_size=sampling_size,
+            condition_file=condition_file)
+
+        parent_classed_dir = '/'.join(classed_dir.split('/')[:-1])
+        abs_output_dir = os.path.join(parent_classed_dir, out_dir, label)
+        for img_file in os.listdir(abs_output_dir):
+            f = os.path.join(abs_output_dir, img_file)
+            if os.path.isdir(f):
+                shutil.rmtree(f)
 
 
 import numpy as np

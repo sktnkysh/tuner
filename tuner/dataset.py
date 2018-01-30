@@ -108,15 +108,8 @@ class AugmentDataset(object):
             cond = decode_numpy(best_condition)
             json.dump(cond, f)
 
-    #def augment_dataset_custom_p(self, sampling_size=None):
-    #    sampling_size =\
-    #        sampling_size if sampling_size else\
-    #        min(self.dataset.counts_train_data().values()) * 4
-    #    augment_data.augment_dataset_custom_p(
-    #        self.dataset.train_dir, self.augmented_dir, sampling_size=sampling_size, p=self.p)
-    #    print('augment dataset done.')
-    #    self.df_augmented = load_data.df_fromdir_classed(self.augmented_dir)
-    #    self.df_train = self.df_augmented
+    def augment_dataset_custom_p(self, sampling_size=None):
+        pass
 
     def augment_dataset(self, sampling_size=None):
         if os.path.exists(self.augmented_dir):
@@ -124,9 +117,9 @@ class AugmentDataset(object):
         sampling_size =\
             sampling_size if sampling_size else\
             min(self.dataset.counts_train_data().values()) * 4
-        augment_data.augment_dataset(
-            self.dataset.train_dir,
-            self.augmented_dir,
+        augment_data.augment_classed_dataset(
+            classed_dir=self.dataset.train_dir,
+            out_dir='auged',
             condition_file=self.augment_condition,
             sampling_size=sampling_size,
         )
